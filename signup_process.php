@@ -1,199 +1,130 @@
-<?php
-
-$signup_success = false; // Flag to track signup success
-
- 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    // Retrieve form data
-
-    $fullname = $_POST['fullname'];
-
-    $email = $_POST['email'];
-
-    $password = $_POST['password'];
-
- 
-
-    // Connect to your database
-
-    $host = "localhost";
-
-    $username = "2010604";
-
-    $db_password = "Choudhury1212";
-
-    $database = "db2010604";
-
- 
-
-    $conn = new mysqli($host, $username, $db_password, $database);
-
- 
-
-    if ($conn->connect_error) {
-
-        die("Connection failed: " . $conn->connect_error);
-
-    }
-
- 
-
-    // Prepare and execute your SQL insert query
-
-    $sql = "INSERT INTO users (fullname, email, password) VALUES ('$fullname', '$email', '$password')";
-
- 
-
-    if ($conn->query($sql) === TRUE) {
-
-        $signup_success = true; // Set the flag to true upon successful signup
-
-    } else {
-
-        echo "Error: " . $sql . "<br>" . $conn->error;
-
-    }
-
- 
-
-    // Close the database connection
-
-    $conn->close();
-
-}
-
-?>
-
- 
-
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Signup</title>
-
+    <title>Sign Up</title>
     <style>
-
-        /* Your existing styles */
-
-        /* Updated confetti styles */
-
-        .confetti {
-
-            width: 8px;
-
-            height: 8px;
-
-           background-color: #f00; /* Adjust the color as needed */
-
-            position: absolute;
-
-            top: 0;
-
-            left: 0;
-
-            animation: confettiAnimation 3s infinite;
-
-            pointer-events: none;
-
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
- 
-
-        @keyframes confettiAnimation {
-
-            0% {
-
-                transform: translateY(0) rotate(0);
-
-                opacity: 1;
-
-            }
-
-            100% {
-
-                transform: translateY(400px) rotate(720deg);
-
-                opacity: 0;
-
-            }
-
+        .form-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
         }
 
+        h2 {
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #f44336;
+        }
     </style>
-
 </head>
-
 <body>
 
-    <?php
-
-    if ($signup_success) {
-
-        // Trigger the confetti animation if signup was successful
-
-        echo "<div class='confetti'></div>";
-
-    }
-
-    ?>
-
- 
-
-    <!-- Your signup form -->
-
-    <form method="post" action="">
-
-        <!-- Your form fields -->
-
-        <input type="text" name="fullname" placeholder="Full Name" required><br><br>
-
-        <input type="email" name="email" placeholder="Email" required><br><br>
-
-        <input type="password" name="password" placeholder="Password" required><br><br>
-
+<div class="form-container">
+    <h2>Sign Up</h2>
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
         <input type="submit" value="Sign Up">
-
     </form>
 
- 
+    <?php
+    // Database credentials
+    $host = "localhost";
+    $username = "2015319";
+    $password_db = "4d5c29";
+    $database = "db2015319";
 
-    <script>
+    // Create connection
+    $conn = new mysqli($host, $username, $password_db, $database);
 
-        // Check if the signup was successful and trigger confetti
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-        window.onload = function() {
+    // Create the 'Users' table if not exists
+    $tableCreationQuery = "CREATE TABLE IF NOT EXISTS Users (
+        ID INT AUTO_INCREMENT PRIMARY KEY,
+        Username VARCHAR(255) NOT NULL,
+        Email VARCHAR(255) NOT NULL,
+        Password VARCHAR(255) NOT NULL
+    )";
 
-            const signupSuccess = <?php echo $signup_success ? 'true' : 'false'; ?>;
+    if ($conn->query($tableCreationQuery) !== TRUE) {
+        echo "Error creating table: " . $conn->error;
+    }
 
-            if (signupSuccess) {
+    // Process signup form if submitted
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Sanitize and validate inputs
+        $username = trim($_POST['username']);
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
 
-                const confetti = document.createElement('div');
+        // Check if username and email are not empty before inserting
+        if (!empty($username) && !empty($email)) {
+            // SQL query to insert data
+            $insertQuery = "INSERT INTO Users (`Username`, `Email`, `Password`) VALUES ('$username', '$email', '$password')";
 
-                confetti.className = 'confetti';
-
-                document.body.appendChild(confetti);
-
-                setTimeout(() => {
-
-                    confetti.remove();
-
-                }, 3000);
-
+            if ($conn->query($insertQuery) === TRUE) {
+                echo "<p class='success'>New record created successfully</p>";
+            } else {
+                echo "<p class='error'>Error: " . $insertQuery . "<br>" . $conn->error . "</p>";
             }
+        } else {
+            echo "<p class='error'>Username and Email cannot be empty</p>";
+        }
+    }
 
-        };
+    // Close the connection
+    $conn->close();
+    ?>
 
-    </script>
+</div>
 
 </body>
-
 </html>
