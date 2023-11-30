@@ -173,7 +173,11 @@ $conn->close();
 ?>
 
 <!-- Basket Button -->
-<button class="basket-button">Add to Basket</button>
+<!-- Basket Button -->
+<a href="basket.php" class="basket-button">Add to Basket</a>
+<a href="signup_process.php" class="signup-button">Sign Up</a>
+<a href="login.php" class="login-button">log in</a>
+
 
 </body>
 </html>
